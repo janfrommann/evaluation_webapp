@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Document - {{ document.title }}</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #333;
+            background-color: #fff;
+        }
+        .container {
+            max-width: 800px;
+        }
+        mark.lightgreen { background-color: lightgreen; }
+        mark.lightblue { background-color: lightblue; }
+    </style>
+
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="display-4 text-center mb-4">{{ document.title }}</h1>
+        <div class="text-justify" style="line-height: 1.6;">
+            {{ document.content|safe }}
+        </div>
+        <form action="/vote" method="post" class="mb-4">
+            <input type="hidden" name="title" value="{{ document.title }}">
+            <button type="submit" class="btn btn-success btn-lg mr-2" name="color" value="lightgreen">Vote for Light Green</button>
+            <button type="submit" class="btn btn-primary btn-lg" name="color" value="lightblue">Vote for Light Blue</button>
+        </form>
+        <a href="/" class="btn btn-secondary btn-lg btn-block">Go Back</a>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
+

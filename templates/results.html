@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Results</h1>
+    <table>
+        <tr>
+            <th>Document</th>
+            <th>Custom Model</th>
+            <th>GPT Model</th>
+        </tr>
+        {% for document, counts in results.items() %}
+        <tr>
+            <td>{{ document }}</td>
+            <td>{{ counts['Custom Model'] }}</td>
+            <td>{{ counts['GPT_Model'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
