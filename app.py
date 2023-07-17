@@ -90,12 +90,13 @@ inspector = sa.inspect(engine)
 
 def table_exists(tablename):
     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
-    metadata = MetaData()
+    metadata = MetaData(bind=engine)
     try:
-        t = Table(tablename, metadata, autoload_with=engine)
-        return t.exists()
+        t = Table(tablename, metadata, autoload=True)
+        return engine.dialect.has_table(engine, tablename)
     except exc.NoSuchTableError:
         return False
+
 
 with app.app_context():
         if not table_exists("voting_result"):
