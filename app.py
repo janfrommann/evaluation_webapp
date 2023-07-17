@@ -4,6 +4,7 @@ from flask_session import Session
 import json
 import random
 from random import choice
+import sqlalchemy as sa  # new import
 
 app = Flask(__name__)
 app.secret_key = '123456'
@@ -11,10 +12,10 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dbhigh_user:R9kIBmxZ8vbglRrJH2iPwheeR1X7DfSV@dpg-ciq8d7unqql4qa4k57pg-a/dbhigh'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-
 Session(app)
 db = SQLAlchemy(app)
+
+
 
 class VotingResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -82,6 +83,13 @@ def vote():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Create database tables
+    # Check if the database needs to be initialized
+    engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    inspector = sa.inspect(engine)
+    if not inspector.has_table("voting_result"):
+        with app.app_context():
+            db.create_all()  # Create database tables
+            app.logger.info('Initialized the database!')
+    else:
+        app.logger.info('Database already contains the voting_result table.')
     app.run(debug=True, use_reloader=False)
