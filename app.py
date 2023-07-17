@@ -5,7 +5,7 @@ import json
 import random
 from random import choice
 import sqlalchemy as sa  # new import
-from sqlalchemy import MetaData, Table, create_engine
+from sqlalchemy import MetaData, Table, create_engine, exc
 from flask import current_app
 
 
@@ -91,7 +91,11 @@ inspector = sa.inspect(engine)
 def table_exists(tablename):
     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
     metadata = MetaData()
-    return Table(tablename, metadata, autoload_with=engine).exists()
+    try:
+        t = Table(tablename, metadata, autoload_with=engine)
+        return t.exists()
+    except exc.NoSuchTableError:
+        return False
 
 with app.app_context():
         if not table_exists("voting_result"):
