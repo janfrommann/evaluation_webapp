@@ -15,8 +15,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 Session(app)
 db = SQLAlchemy(app)
 
-
-
 class VotingResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
@@ -82,14 +80,16 @@ def vote():
     flash(f'You voted for the model associated with the color {voted_color}. Thank you for your vote!')
     return redirect(url_for('index'))
 
-if __name__ == '__main__':
-    # Check if the database needs to be initialized
-    engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-    inspector = sa.inspect(engine)
+engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+inspector = sa.inspect(engine)
+
+# Create database tables if they do not exist
+with app.app_context():
     if not inspector.has_table("voting_result"):
-        with app.app_context():
-            db.create_all()  # Create database tables
-            app.logger.info('Initialized the database!')
+        db.create_all()
+        app.logger.info('Initialized the database!')
     else:
         app.logger.info('Database already contains the voting_result table.')
+
+if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
