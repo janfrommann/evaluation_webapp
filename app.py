@@ -132,19 +132,19 @@ inspector = sa.inspect(engine)
 
 # Create database tables if they do not exist
 
-# def table_exists(tablename):
-#     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
-#     metadata = MetaData(bind=engine)
-#     try:
-#         t = Table(tablename, metadata, autoload=True)
-#         return engine.dialect.has_table(engine, tablename)
-#     except exc.NoSuchTableError:
-#         return False
-
 def table_exists(tablename):
     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
-    inspector = sa.inspect(engine)
-    return inspector.has_table(tablename)
+    metadata = MetaData(bind=engine)
+    try:
+        t = Table(tablename, metadata, autoload=True)
+        return engine.dialect.has_table(engine, tablename)
+    except exc.NoSuchTableError:
+        return False
+
+# def table_exists(tablename):
+#     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
+#     inspector = sa.inspect(engine)
+#     return inspector.has_table(tablename)
 
 
 with app.app_context():
