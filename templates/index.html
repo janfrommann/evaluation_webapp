@@ -25,6 +25,16 @@
         .btn-custom {
             width: 60%;
         }
+        .text-box {
+            background: #f9f9f9; /* Light grey background */
+            border: 1px solid #ccc; /* Light grey border */
+            padding: 15px; /* Padding inside the box */
+            border-radius: 5px; /* Rounded corners */
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            font-size: 16px; /* Font size */
+            margin-top: 70px; /* Space above the box */
+        }
+
     </style>
 
 </head>
@@ -32,7 +42,14 @@
     <div class="container py-5">
         <h1 class="display-4 text-center mb-4">Welcome to the Highlight Evaluator!</h1>
         <h3 class="text-center mb-4">Thanks for helping test Jan's neural networks!</h3>
-        <a href="/random_document" class="btn btn-primary btn-lg btn-custom">Load a Random Document</a>
+        <a href="/random_document" class="btn btn-primary btn-lg btn-custom mb-3">Load a Random Document</a>
+        <a href="{{ url_for('results') }}">View Voting Results</a>
+        <div class="text-box">
+            <p>This is how this works</p>
+            <p>Colours are fun!</p>
+            <!-- Add more lines as needed -->
+        </div>
+        
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <div class="alert alert-success mt-4" role="alert">
@@ -42,6 +59,7 @@
         </div>
         {% endif %}
         {% endwith %}
+
     </div>
 
     <!-- Optional JavaScript -->

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Document - {{ document.title }}</title>
+    <title>{{  document.Document_ID  }}</title> <!-- Use Document_ID in the title -->
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -17,21 +17,63 @@
         .container {
             max-width: 800px;
         }
-        mark.lightgreen { background-color: lightgreen; }
-        mark.lightblue { background-color: lightblue; }
+        .lightgreen {
+            background-color: lightgreen;
+        }
+
+        .lightblue {
+            background-color: lightblue;
+        }
+
+        .overlapping {
+            background-color: yellow;
+        }
+
+
+
     </style>
 
 </head>
 <body>
     <div class="container py-5">
-        <h1 class="display-4 text-center mb-4">{{ document.title }}</h1>
+        <h1 class="display-4 text-center mb-4">{{ document.Document_ID }}</h1> <!-- Use Document_ID as a header -->
+        <h2 class="text-center mb-4">Document ID</h2> <!-- Subheader with Document ID -->
         <div class="text-justify" style="line-height: 1.6;">
-            {{ document.content|safe }}
+            <p>
+                {% for sentence in document['Full_Document'] %}
+                {% set sentence_color = '' %}
+                {% if sentence in document['Custom Highlights'] and sentence in document['Benchmark Highlights'] %}
+                    {% set sentence_color = 'overlapping' %}
+                {% elif sentence in document['Custom Highlights'] %}
+                    {% set sentence_color = color_mapping['Custom Model'] %}
+                {% elif sentence in document['Benchmark Highlights'] %}
+                    {% set sentence_color = color_mapping['Benchmark Model'] %}
+                {% endif %}
+                {% if sentence_color %}
+                    <mark class="{{ sentence_color }}">{{ sentence }}</mark>
+                {% else %}
+                    {{ sentence }}
+                {% endif %}
+                {% if loop.index is divisibleby 5 %}
+                    </p><p>
+                {% endif %}
+            {% endfor %}
+            
+            </p>
+            
         </div>
+        
+        
+        
+        
+        
+        
         <form action="/vote" method="post" class="mb-4">
-            <input type="hidden" name="title" value="{{ document.title }}">
+            <input type="hidden" name="title" value="{{ document.Document_ID }}"> <!-- Send Document_ID in the form -->
             <button type="submit" class="btn btn-success btn-lg mr-2" name="color" value="lightgreen">Vote for Light Green</button>
             <button type="submit" class="btn btn-primary btn-lg" name="color" value="lightblue">Vote for Light Blue</button>
+            
+            
         </form>
         <a href="/" class="btn btn-secondary btn-lg btn-block">Go Back</a>
     </div>
@@ -43,4 +85,5 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
+
 

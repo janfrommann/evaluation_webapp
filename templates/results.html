@@ -1,20 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Results</title>
+</head>
 <body>
-    <h1>Results</h1>
-    <table>
+    <h1>Voting Results</h1>
+    <table border="1">
         <tr>
-            <th>Document</th>
-            <th>Custom Model</th>
-            <th>GPT Model</th>
+            <th>Document ID</th>
+            <th>Custom Model Votes</th>
+            <th>Benchmark Votes</th>
         </tr>
-        {% for document, counts in results.items() %}
+        {% for result in voting_results %}
         <tr>
-            <td>{{ document }}</td>
-            <td>{{ counts['Custom Model'] }}</td>
-            <td>{{ counts['GPT_Model'] }}</td>
+            <td>{{ result.document_id }}</td>
+            <td>{{ result.custom_model_votes }}</td>
+            <td>{{ result.benchmark_votes }}</td>
         </tr>
         {% endfor %}
     </table>
+    <a href="{{ url_for('index') }}">Back to Home</a>
 </body>
 </html>

@@ -13,6 +13,8 @@ app = Flask(__name__)
 app.secret_key = '123456'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dbhigh_user:R9kIBmxZ8vbglRrJH2iPwheeR1X7DfSV@dpg-ciq8d7unqql4qa4k57pg-a/dbhigh'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 Session(app)
@@ -20,23 +22,32 @@ db = SQLAlchemy(app)
 
 class VotingResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(80), unique=True, nullable=False)
+    document_id = db.Column(db.Integer, unique=True, nullable=False)  # Updated from title
     custom_model_votes = db.Column(db.Integer, default=0)
-    gpt_model_votes = db.Column(db.Integer, default=0)
+    benchmark_votes = db.Column(db.Integer, default=0)
+    voted = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return '<VotingResult %r>' % self.title
+        return '<VotingResult %r>' % self.document_id  # Updated from title
 
-def generate_markdown(text, highlights):
-    for highlight in highlights:
-        text = text.replace(highlight['text'], f'<mark style="background-color: {highlight["color"]};">{highlight["text"]}</mark>')
-    sentences = text.split('. ')
-    paragraphs = [' '.join(sentences[i:i+5]) for i in range(0, len(sentences), 5)]
-    text = '</p><p>'.join(paragraphs)
-    return f'<p>{text}</p>'
+# def generate_markdown(sentences, highlights):
+#     highlight_dict = {highlight['text']: f'<mark style="background-color: {highlight["color"]};">{highlight["text"]}</mark>' for highlight in highlights}
+#     paragraphs = []
+#     paragraph = []
+#     for sentence in sentences:
+#         marked_sentence = highlight_dict.get(sentence, sentence)
+#         paragraph.append(marked_sentence)
+#         if len(paragraph) >= 5:
+#             paragraphs.append(' '.join(paragraph))
+#             paragraph = []
+#     if paragraph:
+#         paragraphs.append(' '.join(paragraph))
+#     text = '</p><p>'.join(paragraphs)
+#     return f'<p>{text}</p>'
+
 
 def load_documents():
-    with open('clv_data.json', 'r') as f:
+    with open('data_file_records.json', 'r') as f:
         documents = json.load(f)
     return documents
 
@@ -46,56 +57,94 @@ documents = load_documents()
 def index():
     return render_template('index.html')
 
-@app.route('/random_document', methods=['GET'])
+
+@app.route('/random_document')  # Added route decorator
 def random_document():
-    document = choice(documents)
+    voted_ids = {result.document_id for result in VotingResult.query.filter_by(voted=True).all()}
+    available_documents = [doc for doc in documents if doc['Document_ID'] not in voted_ids]
+    
+    if not available_documents:
+        return "All documents have been voted on", 404
+
+    document = choice(available_documents)
     colors = ['lightgreen', 'lightblue']
     random.shuffle(colors)
-    highlights = [{'text': document['highlight_custom_model'], 'color': colors[0]}, {'text': document['highlight_gpt3.5'], 'color': colors[1]}]
-    session['color_model_mapping'] = {colors[0]: 'Custom Model', colors[1]: 'GPT_Model'}
-    document['content'] = generate_markdown(document['content'], highlights)
-    return render_template('document.html', document=document)
+    session['color_model_mapping'] = {'Custom Model': colors[0], 'Benchmark Model': colors[1]}
+    session['model_color_mapping'] = {colors[0]: 'Custom Model', colors[1]: 'Benchmark Model'}
 
-@app.route('/document/<title>')
-def document(title):
-    document = next((doc for doc in documents if doc['title'] == title), None)
+    # Prepare highlights
+    custom_highlights = [{'text': sentence, 'color': colors[0]} for sentence in document['Custom Highlights']]
+    benchmark_highlights = [{'text': sentence, 'color': colors[1]} for sentence in document['Benchmark Highlights']]
+    highlights = custom_highlights + benchmark_highlights
+
+    return render_template('document.html', document=document, highlights=highlights, color_mapping=session['color_model_mapping'], model_mapping=session['model_color_mapping'])
+
+
+
+
+
+@app.route('/document/<int:document_id>')  # Updated from title
+def document(document_id):
+    document = next((doc for doc in documents if doc['Document_ID'] == document_id), None)
     if document is None:
         return "Document not found", 404
-    highlights = [{'text': document['highlight_custom_model'], 'color': 'lightgreen'}, {'text': document['highlight_gpt3.5'], 'color': 'lightblue'}]
-    document['content'] = generate_markdown(document['content'], highlights)
-    return render_template('document.html', document=document)
+
+    # Define the colors for the highlights
+    colors = ['lightgreen', 'lightblue']
+
+    # Prepare highlights
+    custom_highlights = [{'text': sentence, 'color': colors[0]} for sentence in document['Custom Highlights']]
+    benchmark_highlights = [{'text': sentence, 'color': colors[1]} for sentence in document['Benchmark Highlights']]
+    highlights = custom_highlights + benchmark_highlights
+
+    return render_template('document.html', document=document, highlights=highlights)
+
 
 @app.route('/vote', methods=['POST'])
-@app.route('/vote', methods=['POST'])
 def vote():
-    title = request.form.get('title')
+    document_id = request.form.get('title')  # Assuming this form field now contains the Document_ID
     voted_color = request.form.get('color')
-    model = session['color_model_mapping'][voted_color]
-    result = VotingResult.query.filter_by(title=title).first()
+    model = session['model_color_mapping'][voted_color]
+    result = VotingResult.query.filter_by(document_id=document_id).first()  # Updated from title
     if result is None:
-        result = VotingResult(title=title, custom_model_votes=0, gpt_model_votes=0)  # explicitly set vote counts to 0
+        result = VotingResult(document_id=document_id, custom_model_votes=0, benchmark_votes=0)  # Updated from title
         db.session.add(result)
     if model == 'Custom Model':
         result.custom_model_votes += 1
-    else:  # model is 'GPT_Model'
-        result.gpt_model_votes += 1
+    else:  # model is 'Benchmark Model'
+        result.benchmark_votes += 1
+
+    
+    result.voted = True
+
     db.session.commit()
     flash(f'You voted for the model associated with the color {voted_color}. Thank you for your vote!')
     return redirect(url_for('index'))
+
+@app.route('/results')
+def results():
+    voting_results = VotingResult.query.all()
+    return render_template('results.html', voting_results=voting_results)
+
 
 engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 inspector = sa.inspect(engine)
 
 # Create database tables if they do not exist
 
+# def table_exists(tablename):
+#     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
+#     metadata = MetaData(bind=engine)
+#     try:
+#         t = Table(tablename, metadata, autoload=True)
+#         return engine.dialect.has_table(engine, tablename)
+#     except exc.NoSuchTableError:
+#         return False
+
 def table_exists(tablename):
     engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
-    metadata = MetaData(bind=engine)
-    try:
-        t = Table(tablename, metadata, autoload=True)
-        return engine.dialect.has_table(engine, tablename)
-    except exc.NoSuchTableError:
-        return False
+    inspector = sa.inspect(engine)
+    return inspector.has_table(tablename)
 
 
 with app.app_context():
