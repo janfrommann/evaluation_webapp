@@ -12,7 +12,7 @@ from flask import current_app
 app = Flask(__name__)
 app.secret_key = '123456'
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dbhigh_user:R9kIBmxZ8vbglRrJH2iPwheeR1X7DfSV@dpg-ciq8d7unqql4qa4k57pg-a/dbhigh'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://highevaldb_user:9Y5eEfNUiqcmXTA7170X1nC8V1vZul4b@dpg-cj5dr0me546c739sb1l0-a/highevaldb'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
