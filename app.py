@@ -12,7 +12,7 @@ from flask import current_app
 app = Flask(__name__)
 app.secret_key = '123456'
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://highevaldb_user:9Y5eEfNUiqcmXTA7170X1nC8V1vZul4b@dpg-cj5dr0me546c739sb1l0-a/highevaldb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://db_higheval_live_user:K81cFCSk7uWsYa6ySC0z5fireQLsAdRR@dpg-cj6c5e97120s739s3vng-a/db_higheval_live'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -47,7 +47,7 @@ class VotingResult(db.Model):
 
 
 def load_documents():
-    with open('data_file_records.json', 'r') as f:
+    with open('dataset_for_humaneva_final_0308_updated_naming.json', 'r') as f:
         documents = json.load(f)
     return documents
 
