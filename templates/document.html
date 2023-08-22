@@ -37,14 +37,14 @@
 <body>
     <div class="container py-5">
         <h1 class="display-4 text-center mb-4">{{ document.Document_ID }}</h1> <!-- Use Document_ID as a header -->
-        <h2 class="text-center mb-4">Document ID</h2> <!-- Subheader with Document ID -->
+        <h2 class="text-center mb-4">Document ID</h2> <!-- Subheader with Document ID --> 
         <div class="text-justify" style="line-height: 1.6;">
             <p>
-                {% for sentence in document['Full_Document'] %}
+                {% for sentence in document['Full_Document'] %} 
                 {% set sentence_color = '' %}
-                {% if sentence in document['Custom Highlights'] and sentence in document['Benchmark Highlights'] %}
+                {% if sentence in document['Gold_Highlights'] and sentence in document['Benchmark Highlights'] %}
                     {% set sentence_color = 'overlapping' %}
-                {% elif sentence in document['Custom Highlights'] %}
+                {% elif sentence in document['Gold_Highlights'] %}
                     {% set sentence_color = color_mapping['Custom Model'] %}
                 {% elif sentence in document['Benchmark Highlights'] %}
                     {% set sentence_color = color_mapping['Benchmark Model'] %}
