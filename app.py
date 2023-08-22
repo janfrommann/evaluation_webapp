@@ -73,7 +73,7 @@ def random_document():
     session['model_color_mapping'] = {colors[0]: 'Custom Model', colors[1]: 'Benchmark Model'}
 
     # Prepare highlights
-    custom_highlights = [{'text': sentence, 'color': colors[0]} for sentence in document['Custom Highlights']]
+    custom_highlights = [{'text': sentence, 'color': colors[0]} for sentence in document['Gold_Highlights']] # Custom Highlights
     benchmark_highlights = [{'text': sentence, 'color': colors[1]} for sentence in document['Benchmark Highlights']]
     highlights = custom_highlights + benchmark_highlights
 
@@ -93,7 +93,7 @@ def document(document_id):
     colors = ['lightgreen', 'lightblue']
 
     # Prepare highlights
-    custom_highlights = [{'text': sentence, 'color': colors[0]} for sentence in document['Custom Highlights']]
+    custom_highlights = [{'text': sentence, 'color': colors[0]} for sentence in document['Gold_Highlights']] # Custom Highlights
     benchmark_highlights = [{'text': sentence, 'color': colors[1]} for sentence in document['Benchmark Highlights']]
     highlights = custom_highlights + benchmark_highlights
 
