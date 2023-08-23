@@ -42,9 +42,9 @@
             <p>
                 {% for sentence in document['Full_Document'] %} 
                 {% set sentence_color = '' %}
-                {% if sentence in document['Gold_Highlights'] and sentence in document['Benchmark Highlights'] %}
+                {% if sentence in document['Custom Highlights'] and sentence in document['Benchmark Highlights'] %}
                     {% set sentence_color = 'overlapping' %}
-                {% elif sentence in document['Gold_Highlights'] %}
+                {% elif sentence in document['Custom Highlights'] %}
                     {% set sentence_color = color_mapping['Custom Model'] %}
                 {% elif sentence in document['Benchmark Highlights'] %}
                     {% set sentence_color = color_mapping['Benchmark Model'] %}
